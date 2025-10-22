@@ -379,3 +379,5 @@ const linkedListType<Type>& linkedListType<Type>::operator=
 }
 
 #endif
+
+

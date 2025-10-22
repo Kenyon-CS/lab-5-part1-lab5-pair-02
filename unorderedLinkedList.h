@@ -14,8 +14,7 @@
 using namespace std;
 
 template <class Type>
-//class unorderedLinkedList: public linkedListType<Type>
-class unorderedLinkedList: public linkedListType<int>
+class unorderedLinkedList: public linkedListType<Type>
 {
 public:
     bool search(const Type& searchItem) const;
@@ -42,6 +41,13 @@ public:
       //    is deleted from the list. first points to the first
       //    node, last points to the last node of the updated
       //    list, and count is decremented by 1.
+
+    // Extended operations implementations
+    void deleteSmallest();
+    void deleteAll(const Type& item);
+    Type kth(int k) const;
+    void deleteKth(int k);
+    void rotate();
 };
 
 
@@ -52,7 +58,7 @@ bool unorderedLinkedList<Type>::
     nodeType<Type> *current; //pointer to traverse the list
     bool found = false;
 
-    current = first; //set current to point to the first
+    current = this->first; //set current to point to the first
                      //node in the list
 
     while (current != NULL && !found)    //search the list
@@ -72,14 +78,14 @@ void unorderedLinkedList<Type>::insertFirst(const Type& newItem)
     newNode = new nodeType<Type>; //create the new node
 
     newNode->info = newItem;    //store the new item in the node
-    newNode->link = first;      //insert newNode before first
-    first = newNode;            //make first point to the
+    newNode->link = this->first;      //insert newNode before first
+    this->first = newNode;            //make first point to the
                                 //actual first node
-    count++;                    //increment count
+    this->count++;                    //increment count
 
-    if (last == NULL)   //if the list was empty, newNode is also
+    if (this->last == NULL)   //if the list was empty, newNode is also
                         //the last node in the list
-        last = newNode;
+        this->last = newNode;
 }//end insertFirst
 
 template <class Type>
@@ -93,19 +99,19 @@ void unorderedLinkedList<Type>::insertLast(const Type& newItem)
     newNode->link = NULL;     //set the link field of newNode
                               //to NULL
 
-    if (first == NULL)  //if the list is empty, newNode is
+    if (this->first == NULL)  //if the list is empty, newNode is
                         //both the first and last node
     {
-        first = newNode;
-        last = newNode;
-        count++;        //increment count
+        this->first = newNode;
+        this->last = newNode;
+        this->count++;        //increment count
     }
     else    //the list is not empty, insert newNode after last
     {
-        last->link = newNode; //insert newNode after last
-        last = newNode; //make last point to the actual
+        this->last->link = newNode; //insert newNode after last
+        this->last = newNode; //make last point to the actual
                         //last node in the list
-        count++;        //increment count
+        this->count++;        //increment count
     }
 }//end insertLast
 
@@ -117,26 +123,26 @@ void unorderedLinkedList<Type>::deleteNode(const Type& deleteItem)
     nodeType<Type> *trailCurrent; //pointer just before current
     bool found;
 
-    if (first == NULL)    //Case 1; the list is empty.
+    if (this->first == NULL)    //Case 1; the list is empty.
         cout << "Cannot delete from an empty list."
              << endl;
     else
     {
-        if (first->info == deleteItem) //Case 2: the node to be deleted is the first node
+        if (this->first->info == deleteItem) //Case 2: the node to be deleted is the first node
         {
-            current = first;
-            first = first->link;
-            count--;
-            if (first == NULL)    //the list has only one node
-                last = NULL;
+            current = this->first;
+            this->first = this->first->link;
+            this->count--;
+            if (this->first == NULL)    //the list has only one node
+                this->last = NULL;
             delete current;
         }
         else //search the list for the node with the given info
         {
             found = false;
-            trailCurrent = first;  //set trailCurrent to point
+            trailCurrent = this->first;  //set trailCurrent to point
                                    //to the first node
-            current = first->link; //set current to point to
+            current = this->first->link; //set current to point to
                                    //the second node
 
             while (current != NULL && !found)
@@ -153,11 +159,11 @@ void unorderedLinkedList<Type>::deleteNode(const Type& deleteItem)
             if (found) //Case 3; if found, delete the node
             {
                 trailCurrent->link = current->link;
-                count--;
+                this->count--;
 
-                if (last == current)   //node to be deleted
+                if (this->last == current)   //node to be deleted
                                        //was the last node
-                    last = trailCurrent; //update the value
+                    this->last = trailCurrent; //update the value
                                          //of last
                 delete current;  //delete the node from the list
             }
@@ -168,5 +174,138 @@ void unorderedLinkedList<Type>::deleteNode(const Type& deleteItem)
     }//end else
 }//end deleteNode
 
+
+template <class Type>
+void unorderedLinkedList<Type>::deleteSmallest()
+{
+    if (this->first == NULL)
+    {
+        cout << "Cannot delete from an empty list." << endl;
+        return;
+    }
+
+    nodeType<Type>* prev = NULL;
+    nodeType<Type>* curr = this->first;
+    nodeType<Type>* minPrev = NULL;
+    nodeType<Type>* minNode = this->first;
+
+    while (curr != NULL)
+    {
+        if (curr->info < minNode->info)
+        {
+            minNode = curr;
+            minPrev = prev;
+        }
+        prev = curr;
+        curr = curr->link;
+    }
+
+    if (minPrev == NULL)
+    {
+        this->first = minNode->link;
+        if (this->first == NULL)
+            this->last = NULL;
+    }
+    else
+    {
+        minPrev->link = minNode->link;
+        if (minNode == this->last)
+            this->last = minPrev;
+    }
+    delete minNode;
+    --this->count;
+}
+
+template <class Type>
+void unorderedLinkedList<Type>::deleteAll(const Type& item)
+{
+    nodeType<Type>* prev = NULL;
+    nodeType<Type>* curr = this->first;
+
+    while (curr != NULL)
+    {
+        if (curr->info == item)
+        {
+            nodeType<Type>* toDelete = curr;
+            curr = curr->link;
+
+            if (prev == NULL)
+            {
+                this->first = curr;
+            }
+            else
+            {
+                prev->link = curr;
+            }
+
+            if (toDelete == this->last)
+            {
+                this->last = prev;
+            }
+
+            delete toDelete;
+            --this->count;
+        }
+        else
+        {
+            prev = curr;
+            curr = curr->link;
+        }
+    }
+}
+
+template <class Type>
+Type unorderedLinkedList<Type>::kth(int k) const
+{
+    assert(k >= 1 && k <= this->count);
+    nodeType<Type>* curr = this->first;
+    for (int i = 1; i < k; ++i)
+        curr = curr->link;
+    return curr->info;
+}
+
+template <class Type>
+void unorderedLinkedList<Type>::deleteKth(int k)
+{
+    if (k < 1 || k > this->count)
+    {
+        cout << "Invalid k: out of range." << endl;
+        return;
+    }
+
+    if (k == 1)
+    {
+        nodeType<Type>* toDelete = this->first;
+        this->first = this->first->link;
+        if (this->first == NULL)
+            this->last = NULL;
+        delete toDelete;
+        --this->count;
+        return;
+    }
+
+    nodeType<Type>* prev = this->first;
+    for (int i = 1; i < k - 1; ++i)
+        prev = prev->link;
+    nodeType<Type>* toDelete = prev->link;
+    prev->link = toDelete->link;
+    if (toDelete == this->last)
+        this->last = prev;
+    delete toDelete;
+    --this->count;
+}
+
+template <class Type>
+void unorderedLinkedList<Type>::rotate()
+{
+    if (this->count <= 1)
+        return;
+
+    nodeType<Type>* oldFirst = this->first;
+    this->first = oldFirst->link;
+    this->last->link = oldFirst;
+    oldFirst->link = NULL;
+    this->last = oldFirst;
+}
 
 #endif

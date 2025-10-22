@@ -63,6 +63,42 @@ int main()                                          //Line 4
     cout << endl;                                   //Line 37
 
     //system("pause");
+    // Additional tests for extended functions
+
+    // Test kth (valid)
+    cout << "\nExtra: kth(3) of list1: ";
+    cout << list1.kth(3) << endl;
+
+    // Test deleteKth (valid)
+    cout << "Extra: deleteKth(2) on list1" << endl;
+    list1.deleteKth(2);
+    list1.print();
+    cout << endl;
+
+    // Test rotate
+    cout << "Extra: rotate list1" << endl;
+    list1.rotate();
+    list1.print();
+    cout << endl;
+
+    // Test deleteSmallest
+    cout << "Extra: deleteSmallest on list1" << endl;
+    list1.deleteSmallest();
+    list1.print();
+    cout << endl;
+
+    // Test deleteAll
+    cout << "Extra: Enter a value to deleteAll: ";
+    cin >> num;
+    list1.deleteAll(num);
+    cout << "After deleteAll(" << num << "): ";
+    list1.print();
+    cout << endl;
+    cout << "Length of list1: " << list1.length() << endl;
+
+    // Test deleteKth invalid
+    cout << "Extra: deleteKth(100) on list1 (invalid)" << endl;
+    list1.deleteKth(100);
+
     return 0;                                       //Line 38
 }                                                   //Line 39
-
